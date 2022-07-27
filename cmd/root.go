@@ -7,7 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var inputFilePath string
+var transitionsTable string
+var eventsMappingTable string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -17,7 +18,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		generator.GenerateTestCases(inputFilePath)
+		generator.GenerateTestCases(eventsMappingTable, transitionsTable)
 	},
 }
 
@@ -31,7 +32,10 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.Flags().StringVarP(&inputFilePath, "input-file-path", "i", "", "input csv file describing the state machine to be tested")
-	rootCmd.MarkFlagRequired("input-file-path")
+	rootCmd.Flags().StringVarP(&transitionsTable, "transitions-table-path", "t", "", "input csv file describing the state machine to be tested")
+	rootCmd.MarkFlagRequired("transitions-table-path")
+
+	rootCmd.Flags().StringVarP(&eventsMappingTable, "events-mapping", "e", "", "input csv file describing events/actions mapping")
+	rootCmd.MarkFlagRequired("events-mapping")
 
 }

@@ -1,0 +1,5 @@
+home|device.Home()
+wrong password|device.Login("wrong","wrong")
+correct password|device.Login("login","password")
+lock button|device.LockButton()
+long lock button|device.LongLockButton()

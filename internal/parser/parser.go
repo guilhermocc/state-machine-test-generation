@@ -37,3 +37,29 @@ func ParseStateMachineCsv(filePath string) (initialState string, events []string
 
 	return
 }
+
+func ParseEventsActionsCsv(filePath string) (eventsActions map[string]string, err error) {
+	eventsActions = make(map[string]string)
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	csvReader := csv.NewReader(file)
+
+	csvReader.Comma = '|'
+	csvReader.LazyQuotes = true
+
+	records, err := csvReader.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, record := range records {
+		eventsActions[record[0]] = record[1]
+	}
+
+	return eventsActions, nil
+}
