@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/guilhermocc/test-case-generator/internal/parser"
+	"github.com/guilhermocc/test-case-generator/internal/generator"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -17,7 +17,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		parser.ParseStateMachineCsv(inputFilePath)
+		generator.GenerateTestCases(inputFilePath)
 	},
 }
 
