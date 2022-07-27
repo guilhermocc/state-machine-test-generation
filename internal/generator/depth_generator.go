@@ -131,11 +131,11 @@ func printAllTestCasesPaths(file *os.File, eventsActions map[string]string) {
 	_, err := file.Write([]byte("## Generated test script\n``` go\n"))
 	check(err)
 
-	for _, path := range basicPaths {
+	for i, path := range basicPaths {
 		var finalPath Path
 		json.Unmarshal(path, &finalPath)
-		file.Write([]byte("t.Run(\"TestFirstPath\", func(t *testing.T) {"))
-		file.Write([]byte("\tdevice := &Device{State: \"OFF\"}"))
+		file.Write([]byte(fmt.Sprintf("t.Run(\"TestPath%d\", func(t *testing.T) {", i+1)))
+		file.Write([]byte("\n\tdevice := &Device{State: \"OFF\"}"))
 
 		nextPath := &finalPath
 
