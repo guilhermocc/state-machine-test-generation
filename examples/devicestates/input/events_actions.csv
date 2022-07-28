@@ -1,3 +1,4 @@
+setup|device := &Device{State: "OFF"}
 home|device.Home()
 wrong password|device.Login("wrong","wrong")
 correct password|device.Login("login","password")

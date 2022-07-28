@@ -38,12 +38,12 @@ func ParseStateMachineCsv(filePath string) (initialState string, events []string
 	return
 }
 
-func ParseEventsActionsCsv(filePath string) (eventsActions map[string]string, err error) {
+func ParseEventsActionsCsv(filePath string) (eventsActions map[string]string, setupAction string, err error) {
 	eventsActions = make(map[string]string)
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 	defer file.Close()
 
@@ -54,12 +54,12 @@ func ParseEventsActionsCsv(filePath string) (eventsActions map[string]string, er
 
 	records, err := csvReader.ReadAll()
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	for _, record := range records {
+	for _, record := range records[1:] {
 		eventsActions[record[0]] = record[1]
 	}
 
-	return eventsActions, nil
+	return eventsActions, records[0][1], nil
 }

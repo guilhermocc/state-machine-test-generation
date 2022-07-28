@@ -10,18 +10,6 @@ import (
 var statesCounter = map[string]int{}
 var basicPaths = [][]byte{}
 
-func (p Path) String() string {
-	path := p.StateCount
-	if p.Event != "" {
-		path += fmt.Sprintf(" - |%s|", p.Event)
-	}
-	if p.NextPath != nil {
-		path += " - " + p.NextPath.String()
-
-	}
-	return path
-}
-
 func check(e error) {
 	if e != nil {
 		panic(e)
@@ -32,7 +20,7 @@ func GenerateTestCases(eventsMappingTablePath, transitionsTablePath string) {
 	initialState, events, transitionsMap, err := parser.ParseStateMachineCsv(transitionsTablePath)
 	check(err)
 
-	eventsActions, err := parser.ParseEventsActionsCsv(eventsMappingTablePath)
+	eventsActions, setupAction, err := parser.ParseEventsActionsCsv(eventsMappingTablePath)
 	check(err)
 
 	file, err := os.Create("result.md")
@@ -43,17 +31,17 @@ func GenerateTestCases(eventsMappingTablePath, transitionsTablePath string) {
 
 	fmt.Println("Generating transitions tree...")
 	transitionsTree := generateTransitionsTree(initialState, events, transitionsMap)
-	printTree(file, transitionsTree)
+	writeTree(file, transitionsTree)
 
 	fmt.Println("Traversing tree to generate basic paths...")
 	traverseBasicPaths(eventsActions, transitionsTree, nil)
-	printBasicPaths(file)
+	writeBasicPaths(file)
 
 	fmt.Println("Generating test scripts...")
-	printAllTestCasesPaths(file, eventsActions)
+	generateAndWriteTestCases(file, setupAction, eventsActions)
 }
 
-func printBasicPaths(file *os.File) {
+func writeBasicPaths(file *os.File) {
 	_, err := file.Write([]byte("## Basic Paths\n```\n"))
 	check(err)
 
@@ -102,7 +90,7 @@ func traverseBasicPaths(eventsActions map[string]string, tree *Node, currentPath
 
 }
 
-func printTree(file *os.File, tree *Node) {
+func writeTree(file *os.File, tree *Node) {
 	_, err := file.Write([]byte("## Transitions Tree\n```\n"))
 	check(err)
 
@@ -127,7 +115,7 @@ func printTree(file *os.File, tree *Node) {
 	check(err)
 }
 
-func printAllTestCasesPaths(file *os.File, eventsActions map[string]string) {
+func generateAndWriteTestCases(file *os.File, setupAction string, eventsActions map[string]string) {
 	_, err := file.Write([]byte("## Generated test script\n``` go\n"))
 	check(err)
 
@@ -135,7 +123,7 @@ func printAllTestCasesPaths(file *os.File, eventsActions map[string]string) {
 		var finalPath Path
 		json.Unmarshal(path, &finalPath)
 		file.Write([]byte(fmt.Sprintf("t.Run(\"TestPath%d\", func(t *testing.T) {", i+1)))
-		file.Write([]byte("\n\tdevice := &Device{State: \"OFF\"}"))
+		file.Write([]byte(fmt.Sprintf("\n\t%s", setupAction)))
 
 		nextPath := &finalPath
 
@@ -200,6 +188,18 @@ type Path struct {
 	StateCount string `json:"StateCount"`
 	Event      string `json:"Event"`
 	NextPath   *Path  `json:"NextPath"`
+}
+
+func (p Path) String() string {
+	path := p.StateCount
+	if p.Event != "" {
+		path += fmt.Sprintf(" - |%s|", p.Event)
+	}
+	if p.NextPath != nil {
+		path += " - " + p.NextPath.String()
+
+	}
+	return path
 }
 
 type Node struct {
